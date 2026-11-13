@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#071426"><title>MUSIC QUEST – DIGITAL EXAM</title>
+<style>
+:root{--bg:#071426;--panel:#10243c;--panel2:#17324f;--line:#2b4d6b;--cyan:#35d5ec;--orange:#ffb54d;--text:#f5f8ff;--muted:#a9bad0;--green:#4de0a2;--red:#ff748b}
+*{box-sizing:border-box}body{margin:0;color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif;background:radial-gradient(ellipse at 15% 0%,#153c5b 0,transparent 35%),radial-gradient(ellipse at 95% 18%,#24294d 0,transparent 30%),var(--bg);min-height:100vh}
+.wrap{max-width:1080px;margin:auto;padding:20px}.top{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:22px}.logo{font-size:clamp(1.3rem,4vw,2rem);font-weight:1000;letter-spacing:1px}.logo span{color:var(--orange)}.chip{border:1px solid var(--line);background:#102943;border-radius:999px;padding:9px 14px;color:var(--muted);font-weight:800}
+.hero,.panel{background:linear-gradient(145deg,#142d48,#0c1e33);border:1px solid #2c4e6d;border-radius:22px;padding:clamp(18px,4vw,34px);box-shadow:0 16px 45px #0003}.hero{padding:clamp(25px,6vw,58px);background:linear-gradient(120deg,#153955ee,#091c32f2);position:relative;overflow:hidden}.kicker{font-size:.76rem;letter-spacing:3px;color:var(--cyan);font-weight:900}.hero h1{font-size:clamp(2.5rem,8vw,5rem);line-height:.98;margin:12px 0}.hero h1 span{color:var(--orange)}p{color:#c6d5e5;line-height:1.6}.muted{color:var(--muted)}.btn{border:0;border-radius:13px;padding:12px 18px;background:linear-gradient(135deg,var(--cyan),#74e7f3);color:#062235;font-weight:900;cursor:pointer}.btn.orange{background:linear-gradient(135deg,#ff9f22,#ffd078);color:#241607}.btn.alt{background:#1b3855;color:var(--text);border:1px solid #41617c}.btn:disabled{opacity:.45;cursor:not-allowed}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}.field{display:grid;gap:7px;margin:14px 0}.field label{font-weight:800}.field input{width:100%;padding:13px;border-radius:11px;border:1px solid #456580;background:#081a2e;color:white;font-size:1rem}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:22px 0}.genre{border:1px solid var(--line);border-radius:15px;padding:15px;background:#102943;text-align:center;font-weight:900}.genre b{display:block;font-size:2rem;margin-bottom:5px}.screen{display:none}.screen.active{display:block}.rules{border:1px solid #365875;background:#0d2238;border-radius:14px;padding:16px;margin-top:18px}.rules li{margin:7px 0;color:#d2e2f1}.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.timer{font-size:1.2rem;color:#ffe0a1;font-weight:950;border:1px solid #9a6b2c;border-radius:12px;padding:9px 13px}.progress{height:8px;background:#263e59;border-radius:99px;overflow:hidden;margin:14px 0 20px}.progress>div{height:100%;background:linear-gradient(90deg,var(--cyan),var(--orange));width:0}.qimage{height:clamp(160px,30vw,270px);border:1px solid #38617d;border-radius:16px;overflow:hidden;background:linear-gradient(135deg,#193b59,#0a1a2c);margin:14px 0}.qimage img{width:100%;height:100%;object-fit:cover}.qimage .fallback{height:100%;display:grid;place-items:center;font-size:4rem}.qtitle{font-size:clamp(1.25rem,3vw,1.8rem);line-height:1.3;margin:15px 0}.answers{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}.answer{border:1px solid #3a5d7b;border-radius:13px;color:var(--text);padding:14px;background:#193854;text-align:left;font-weight:800;cursor:pointer}.answer.selected{border:2px solid var(--cyan);background:#15506a}.answer:disabled{opacity:.8}.status{min-height:26px;color:var(--muted);font-size:.9rem;margin-top:10px}.matchrow{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:center;margin:9px 0}.matchrow span{background:#173550;padding:11px;border-radius:10px;font-weight:800}.matchrow select{background:#081a2e;color:white;border:1px solid #456580;border-radius:10px;padding:11px;min-width:0}.tablewrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:580px}th,td{text-align:left;padding:11px;border-bottom:1px solid #31506c}th{color:#9feefa}td{color:#eaf3fa}.statgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:18px 0}.stat{background:#0d263e;border:1px solid #31536f;border-radius:14px;padding:14px}.stat strong{display:block;font-size:1.7rem;color:var(--cyan)}.note{font-size:5rem;color:var(--orange);font-weight:1000}.success{border:1px solid #2e9672;background:#103d34;border-radius:15px;padding:16px}.error{border:1px solid #98536c;background:#462638;border-radius:12px;padding:12px;color:#ffdce5}.hidden{display:none!important}.small{font-size:.85rem}
+@media(max-width:620px){.wrap{padding:12px}.top{align-items:flex-start;flex-direction:column}.matchrow{grid-template-columns:1fr}.answers{grid-template-columns:1fr}}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+</head>
+<body><div class="wrap">
+<header class="top"><div class="logo">♫ MUSIC <span>QUEST</span> <small style="color:var(--cyan);font-size:.62em">DIGITAL EXAM</small></div><div class="chip">30 Fragen · 30 Minuten · 30 Punkte</div></header>
+
+<section id="home" class="screen active">
+  <div class="hero">
+    <div class="kicker">DIE DIGITALE MUSIKPRÜFUNG</div>
+    <h1>MUSIC <span>QUEST</span><br>DIGITAL EXAM</h1>
+    <p>Deine Prüfung zu den fünf Musikrichtungen. Arbeite konzentriert und beantworte alle 30 Aufgaben. Jede Aufgabe zählt einen Punkt.</p>
+    <div class="grid">
+      <div class="genre"><b>🤠</b>Country</div><div class="genre"><b>🎤</b>Pop</div><div class="genre"><b>🎸</b>Rock</div><div class="genre"><b>🤘</b>Metal</div><div class="genre"><b>🌴</b>Reggae</div>
+    </div>
+    <div class="rules"><strong>Prüfungsregeln</strong><ul><li>30 Aufgaben – je 6 zu jeder Musikrichtung.</li><li>Bearbeitungszeit: 30 Minuten.</li><li>Jede Aufgabe zählt genau einen Punkt.</li><li>Nach der verbindlichen Abgabe können Antworten nicht mehr geändert werden.</li><li>Bei Ablauf der Zeit wird automatisch abgegeben.</li></ul></div>
+    <div class="actions"><button class="btn orange" onclick="show('student')">Prüfung starten</button><button class="btn alt" onclick="show('teacherLogin')">Lehrerbereich</button></div>
+  </div>
+</section>
+
+<section id="student" class="screen">
+  <div class="panel">
+    <div class="kicker">DEINE ANGABEN</div><h2>Wer schreibt die Prüfung?</h2>
+    <div class="field"><label for="studentName">Vor- und Nachname</label><input id="studentName" maxlength="80" autocomplete="name" placeholder="Vorname Nachname"></div>
+    <div class="field"><label for="className">Klasse</label><input id="className" maxlength="20" placeholder="z. B. 7a"></div>
+    <div id="startError" class="error hidden"></div>
+    <div class="actions"><button class="btn orange" id="startBtn" onclick="startExam()">Weiter zur Prüfung</button><button class="btn alt" onclick="show('home')">Zurück</button></div>
+  </div>
+</section>
+
+<section id="exam" class="screen">
+  <div class="panel">
+    <div class="qhead"><div><div class="kicker" id="genreLabel">COUNTRY</div><strong id="qNumber">Frage 1 von 30</strong></div><div class="timer" id="timer">30:00</div></div>
+    <div class="progress"><div id="progressBar"></div></div>
+    <div id="questionImage" class="qimage"><div class="fallback">🎵</div></div>
+    <h2 id="questionPrompt" class="qtitle"></h2>
+    <div id="answerArea"></div>
+    <div id="saveStatus" class="status">Antworten werden automatisch gespeichert.</div>
+    <div class="actions"><button class="btn alt" id="prevBtn" onclick="move(-1)">Zurück</button><button class="btn orange" id="nextBtn" onclick="move(1)">Weiter</button><button class="btn" id="finishBtn" onclick="confirmSubmit()" style="display:none">Prüfung abgeben</button></div>
+  </div>
+</section>
+
+<section id="confirm" class="screen">
+ <div class="panel"><div class="kicker">LETZTER SCHRITT</div><h2>Prüfung verbindlich abgeben?</h2><p>Nach der Abgabe werden deine Antworten endgültig gesperrt. Du kannst sie nicht mehr ändern.</p><div class="statgrid"><div class="stat"><strong id="answeredCount">0/30</strong>Beantwortet</div><div class="stat"><strong id="remainingCount">30</strong>Offen</div></div><div class="actions"><button class="btn orange" id="submitBtn" onclick="submitExam()">Ja, verbindlich abgeben</button><button class="btn alt" onclick="show('exam')">Zurück zur Prüfung</button></div><div id="submitError" class="error hidden"></div></div>
+</section>
+
+<section id="result" class="screen">
+ <div class="panel"><div class="kicker">PRÜFUNG ABGESCHLOSSEN</div><h2>Dein Ergebnis</h2><div class="success"><div class="statgrid"><div class="stat"><strong id="resultPoints">0/30</strong>Punkte</div><div class="stat"><strong id="resultPercent">0%</strong>Ergebnis</div><div class="stat"><strong class="note" id="resultGrade">6</strong>Note</div></div><strong id="resultMessage">Deine Prüfung wurde abgegeben.</strong></div><p class="muted">Deine Antworten sind endgültig gespeichert und können nicht mehr geändert werden.</p></div>
+</section>
+
+<section id="teacherLogin" class="screen">
+ <div class="panel"><div class="kicker">GESCHÜTZTER BEREICH</div><h2>Lehrer-Anmeldung</h2><div class="field"><label>E-Mail</label><input id="teacherEmail" type="email" autocomplete="username"></div><div class="field"><label>Passwort</label><input id="teacherPassword" type="password" autocomplete="current-password"></div><div id="loginError" class="error hidden"></div><div class="actions"><button class="btn orange" onclick="teacherLogin()">Anmelden</button><button class="btn alt" onclick="show('home')">Zurück</button></div></div>
+</section>
+
+<section id="dashboard" class="screen">
+ <div class="panel"><div class="qhead"><div><div class="kicker">LEHRERBEREICH</div><h2>Prüfungsergebnisse</h2></div><button class="btn alt" onclick="teacherLogout()">Abmelden</button></div>
+ <div class="statgrid"><div class="stat"><strong id="statCount">0</strong>Abgaben</div><div class="stat"><strong id="statAverage">–</strong>Ø Punkte</div><div class="stat"><strong id="statGrade">–</strong>Ø Note</div><div class="stat"><strong id="statClass">–</strong>Klassen</div></div>
+ <div class="actions"><button class="btn" onclick="loadResults()">Aktualisieren</button><button class="btn alt" onclick="exportCSV()">Excel/CSV exportieren</button></div>
+ <div id="dashError" class="error hidden"></div>
+ <div class="tablewrap"><table><thead><tr><th>Name</th><th>Klasse</th><th>Punkte</th><th>Prozent</th><th>Note</th><th>Abgabe</th></tr></thead><tbody id="resultsBody"><tr><td colspan="6">Noch keine Ergebnisse geladen.</td></tr></tbody></table></div>
+ </div>
+</section>
+</div>
+
+<script>
+const CONFIG_OK = window.MQ_SUPABASE_URL && window.MQ_SUPABASE_ANON_KEY &&
+ !window.MQ_SUPABASE_URL.includes("PASTE_") && !window.MQ_SUPABASE_ANON_KEY.includes("PASTE_");
+let sb=null, sessionId=null, questions=[], answers={}, current=0, deadline=null, timerHandle=null, results=[];
+const imageFiles={
+ "country-bluegrass":"assets/country-bluegrass.jpg",
+ "country-banjo-fiddle":"assets/country-banjo-fiddle.jpg",
+ "steel-detail":"assets/steel-detail.jpg",
+ "country-cowboy":"assets/country-cowboy.jpg",
+ "metal-style":"assets/metal-style.jpg"
+};
+const genreIcons={Country:"🤠",Pop:"🎤",Rock:"🎸",Metal:"🤘",Reggae:"🌴"};
+if(CONFIG_OK && window.supabase) sb=window.supabase.createClient(window.MQ_SUPABASE_URL,window.MQ_SUPABASE_ANON_KEY);
+function show(id){document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");window.scrollTo(0,0)}
+function err(id,msg){const el=document.getElementById(id);el.textContent=msg;el.classList.remove("hidden")}
+function clearErr(id){const el=document.getElementById(id);el.textContent="";el.classList.add("hidden")}
+function ready(){if(!sb)throw new Error("Die Datenbank ist noch nicht verbunden. Bitte config.js mit Supabase-URL und anon/public key befüllen.");}
+async function startExam(){
+ try{ready();clearErr("startError");const name=document.getElementById("studentName").value.trim(),klass=document.getElementById("className").value.trim();if(!name||!klass)throw new Error("Bitte Namen und Klasse vollständig eingeben.");
+ document.getElementById("startBtn").disabled=true;
+ const {data,error}=await sb.rpc("start_music_exam",{p_student_name:name,p_class_name:klass});if(error)throw error;
+ sessionId=data.session_id;deadline=new Date(data.deadline);questions=data.questions;answers={};current=0;
+ sessionStorage.setItem("mq_exam_session",sessionId);sessionStorage.setItem("mq_exam_name",name);sessionStorage.setItem("mq_exam_class",klass);
+ show("exam");renderQuestion();startTimer();
+ }catch(e){err("startError",e.message||"Prüfung konnte nicht gestartet werden.");}
+ finally{document.getElementById("startBtn").disabled=false;}
+}
+function renderQuestion(){
+ const q=questions[current];document.getElementById("genreLabel").textContent=(genreIcons[q.genre]||"♫")+" "+q.genre.toUpperCase();
+ document.getElementById("qNumber").textContent=`Frage ${current+1} von 30`;
+ document.getElementById("progressBar").style.width=((current+1)/30*100)+"%";
+ document.getElementById("questionPrompt").textContent=q.prompt;
+ const img=document.getElementById("questionImage");img.innerHTML="";
+ const src=imageFiles[q.image_key];
+ if(src){const image=document.createElement("img");image.src=src;image.alt=q.image_key;image.onerror=()=>{img.innerHTML=`<div class="fallback">${genreIcons[q.genre]||"♫"}</div>`};img.appendChild(image);}
+ else img.innerHTML=`<div class="fallback">${genreIcons[q.genre]||"♫"}</div>`;
+ const area=document.getElementById("answerArea");area.innerHTML="";
+ if(q.task_type==="mcq"){
+   const grid=document.createElement("div");grid.className="answers";
+   q.options.forEach((opt,i)=>{const b=document.createElement("button");b.className="answer"+(answers[q.id]===i?" selected":"");b.textContent=String.fromCharCode(65+i)+". "+opt;b.onclick=()=>saveAnswer(q.id,i,b);grid.appendChild(b);});
+   area.appendChild(grid);
+ }else{
+   const payload=q.payload||{};const pairs=payload.pairs||[];const choices=[...new Set(pairs.map(x=>x[1]))];
+   pairs.forEach(([left],i)=>{const row=document.createElement("div");row.className="matchrow";const label=document.createElement("span");label.textContent=left;const sel=document.createElement("select");sel.innerHTML='<option value="">Bitte auswählen …</option>'+choices.map(c=>`<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join("");const saved=answers[q.id]||{};sel.value=saved[left]||"";sel.onchange=()=>{const v={...(answers[q.id]||{}),[left]:sel.value};saveAnswer(q.id,v,sel);};row.append(label,sel);area.appendChild(row);});
+ }
+ document.getElementById("prevBtn").disabled=current===0;
+ document.getElementById("nextBtn").style.display=current===29?"none":"inline-block";
+ document.getElementById("finishBtn").style.display=current===29?"inline-block":"none";
+ document.getElementById("saveStatus").textContent=answers[q.id]!==undefined?"Antwort gespeichert.":"Wähle eine Antwort. Sie wird automatisch gespeichert.";
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+async function saveAnswer(qid,answer,control){
+ answers[qid]=answer;renderQuestion();
+ document.getElementById("saveStatus").textContent="Speichere Antwort …";
+ try{const {error}=await sb.rpc("save_music_answer",{p_session_id:sessionId,p_question_id:qid,p_answer:answer});if(error)throw error;document.getElementById("saveStatus").textContent="✓ Antwort sicher gespeichert.";}
+ catch(e){document.getElementById("saveStatus").textContent="Speichern fehlgeschlagen: "+e.message+" – bitte Verbindung prüfen.";}
+}
+function move(n){current=Math.max(0,Math.min(29,current+n));renderQuestion();}
+function startTimer(){if(timerHandle)clearInterval(timerHandle);timerHandle=setInterval(async()=>{const left=Math.max(0,Math.floor((deadline-Date.now())/1000));const m=String(Math.floor(left/60)).padStart(2,"0"),s=String(left%60).padStart(2,"0");document.getElementById("timer").textContent=m+":"+s;if(left<=0){clearInterval(timerHandle);await submitExam(true);}},500);}
+function confirmSubmit(){const count=Object.keys(answers).length;document.getElementById("answeredCount").textContent=count+"/30";document.getElementById("remainingCount").textContent=30-count;show("confirm");}
+async function submitExam(auto=false){
+ try{document.getElementById("submitBtn").disabled=true;const {data,error}=await sb.rpc("submit_music_exam",{p_session_id:sessionId});if(error)throw error;if(timerHandle)clearInterval(timerHandle);
+ document.getElementById("resultPoints").textContent=data.points+"/30";document.getElementById("resultPercent").textContent=(data.points/30*100).toFixed(1).replace(".",",")+"%";document.getElementById("resultGrade").textContent=data.grade;
+ document.getElementById("resultMessage").textContent=auto?"Die Zeit ist abgelaufen. Deine gespeicherten Antworten wurden gewertet.":"Deine Prüfung wurde verbindlich abgegeben.";
+ sessionStorage.removeItem("mq_exam_session");show("result");
+ }catch(e){err("submitError",e.message||"Abgabe fehlgeschlagen.");}
+ finally{document.getElementById("submitBtn").disabled=false;}
+}
+async function teacherLogin(){
+ try{ready();clearErr("loginError");const email=document.getElementById("teacherEmail").value,password=document.getElementById("teacherPassword").value;const {error}=await sb.auth.signInWithPassword({email,password});if(error)throw error;show("dashboard");await loadResults();}
+ catch(e){err("loginError",e.message||"Anmeldung fehlgeschlagen.");}
+}
+async function teacherLogout(){if(sb)await sb.auth.signOut();show("home");}
+async function loadResults(){
+ try{clearErr("dashError");const {data,error}=await sb.rpc("get_teacher_exam_results");if(error)throw error;results=data||[];
+ const done=results.filter(x=>x.submitted_at);const avg=done.length?done.reduce((a,x)=>a+x.points,0)/done.length:0;const avgG=done.length?done.reduce((a,x)=>a+x.grade,0)/done.length:0;
+ document.getElementById("statCount").textContent=done.length;document.getElementById("statAverage").textContent=done.length?avg.toFixed(1).replace(".",","):"–";document.getElementById("statGrade").textContent=done.length?avgG.toFixed(2).replace(".",","):"–";document.getElementById("statClass").textContent=[...new Set(done.map(x=>x.class_name))].length;
+ document.getElementById("resultsBody").innerHTML=done.map(x=>`<tr><td>${escapeHtml(x.student_name)}</td><td>${escapeHtml(x.class_name)}</td><td>${x.points}/30</td><td>${(x.points/30*100).toFixed(1).replace(".",",")}%</td><td><strong>${x.grade}</strong></td><td>${new Date(x.submitted_at).toLocaleString("de-DE")}</td></tr>`).join("")||'<tr><td colspan="6">Noch keine abgegebenen Prüfungen.</td></tr>';
+ }catch(e){err("dashError",e.message||"Ergebnisse konnten nicht geladen werden.");}
+}
+function exportCSV(){
+ const done=results.filter(x=>x.submitted_at);const rows=[["Name","Klasse","Punkte","Prozent","Note","Abgabezeit"],...done.map(x=>[x.student_name,x.class_name,x.points,(x.points/30*100).toFixed(1),x.grade,new Date(x.submitted_at).toLocaleString("de-DE")])];
+ const csv="\\ufeff"+rows.map(r=>r.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(";")).join("\\r\\n");
+ const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download="MUSIC_QUEST_Pruefungsergebnisse.csv";a.click();URL.revokeObjectURL(a.href);
+}
+
+async function resumeExamIfOpen(){
+ const saved=sessionStorage.getItem("mq_exam_session");
+ if(!saved||!sb)return;
+ try{
+  const {data,error}=await sb.rpc("get_music_exam",{p_session_id:saved});
+  if(error)throw error;
+  if(data.submitted_at){sessionStorage.removeItem("mq_exam_session");return;}
+  sessionId=data.session_id;deadline=new Date(data.deadline);questions=data.questions||[];answers=data.answers||{};
+  if(questions.length===30){current=0;show("exam");renderQuestion();startTimer();}
+ }catch(e){console.warn("Prüfung konnte nicht wiederhergestellt werden:",e.message);}
+}
+window.addEventListener("load",()=>{resumeExamIfOpen();});
+</script></body></html>
