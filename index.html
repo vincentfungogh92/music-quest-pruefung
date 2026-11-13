@@ -18,6 +18,21 @@
 .review-item button{white-space:nowrap}
 .review-status{font-weight:700;font-size:.82rem}
 @media(max-width:620px){.review-item{grid-template-columns:1fr}.review-item button{width:100%}}
+
+.question-nav{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:6px;margin:12px 0 18px}
+.question-nav button{padding:8px 2px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--text);font-weight:700;cursor:pointer}
+.question-nav button.current{outline:2px solid var(--cyan);background:rgba(53,213,220,.14)}
+.question-nav button.answered{border-color:var(--green)}
+.question-nav button.unanswered{border-color:var(--orange)}
+.review-result{display:grid;gap:12px;margin-top:18px}
+.result-question{padding:14px;border:1px solid var(--line);border-left:5px solid var(--red);border-radius:12px;background:var(--panel)}
+.result-question.correct{border-left-color:var(--green)}
+.result-question h3{margin:0 0 8px}
+.result-line{padding:8px 10px;border-radius:8px;margin-top:6px;background:rgba(255,255,255,.04)}
+.result-line.correct{background:rgba(46,204,113,.13);color:var(--text)}
+.result-line.wrong{background:rgba(255,90,90,.13);color:var(--text)}
+.result-line small{display:block;color:var(--muted)}
+@media(max-width:620px){.question-nav{grid-template-columns:repeat(6,minmax(0,1fr))}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
@@ -52,6 +67,7 @@
   <div class="panel">
     <div class="qhead"><div><div class="kicker" id="genreLabel">COUNTRY</div><strong id="qNumber">Frage 1 von 30</strong></div><div class="timer" id="timer">30:00</div></div>
     <div class="progress"><div id="progressBar"></div></div>
+    <div id="questionNavigator" class="question-nav" aria-label="Fragenübersicht"></div>
     <div id="questionImage" class="qimage"><div class="fallback">🎵</div></div>
     <h2 id="questionPrompt" class="qtitle"></h2>
     <div id="answerArea"></div>
@@ -65,7 +81,7 @@
 </section>
 
 <section id="result" class="screen">
- <div class="panel"><div class="kicker">PRÜFUNG ABGESCHLOSSEN</div><h2>Dein Ergebnis</h2><div class="success"><div class="statgrid"><div class="stat"><strong id="resultPoints">0/30</strong>Punkte</div><div class="stat"><strong id="resultPercent">0%</strong>Ergebnis</div><div class="stat"><strong class="note" id="resultGrade">6</strong>Note</div></div><strong id="resultMessage">Deine Prüfung wurde abgegeben.</strong></div><p class="muted">Deine Antworten sind endgültig gespeichert und können nicht mehr geändert werden.</p></div>
+ <div class="panel"><div class="kicker">PRÜFUNG ABGESCHLOSSEN</div><h2>Dein Ergebnis</h2><div class="success"><div class="statgrid"><div class="stat"><strong id="resultPoints">0/30</strong>Punkte</div><div class="stat"><strong id="resultPercent">0%</strong>Ergebnis</div><div class="stat"><strong class="note" id="resultGrade">6</strong>Note</div></div><strong id="resultMessage">Deine Prüfung wurde abgegeben.</strong></div><p class="muted">Deine Antworten sind endgültig gespeichert und können nicht mehr geändert werden.</p><h3>Deine Antworten und die Lösungen</h3><div id="resultReview" class="review-result"><p>Die Auswertung wird geladen …</p></div></div>
 </section>
 
 <section id="teacherLogin" class="screen">
@@ -114,6 +130,14 @@ function renderQuestion(){
  document.getElementById("qNumber").textContent=`Frage ${current+1} von 30`;
  document.getElementById("progressBar").style.width=((current+1)/30*100)+"%";
  document.getElementById("questionPrompt").textContent=q.prompt;
+ const nav=document.getElementById("questionNavigator");nav.innerHTML="";
+ questions.forEach((item,index)=>{
+   const b=document.createElement("button");b.type="button";b.textContent=String(index+1);
+   b.className=(index===current?"current ":"")+(isQuestionAnswered(item)?"answered":"unanswered");
+   b.title=`Frage ${index+1}${isQuestionAnswered(item)?" – beantwortet":" – noch offen"}`;
+   b.onclick=()=>{current=index;renderQuestion();};
+   nav.appendChild(b);
+ });
  const img=document.getElementById("questionImage");img.innerHTML="";
  const src=imageFiles[q.image_key];
  if(src){const image=document.createElement("img");image.src=src;image.alt=q.image_key;image.onerror=()=>{img.innerHTML=`<div class="fallback">${genreIcons[q.genre]||"♫"}</div>`};img.appendChild(image);}
@@ -155,21 +179,26 @@ function prepareQuestions(){
 }
 function isQuestionAnswered(q){const a=answers[q.id];if(a===undefined||a===null)return false;if(q.task_type==="mcq")return Number.isInteger(a);const pairs=(q.payload||{}).pairs||[];return pairs.length>0&&pairs.every(([left])=>typeof a[left]==="string"&&a[left].length>0);}
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+let saveQueue=Promise.resolve();
 async function saveAnswer(qid,answer,control){
- answers[qid]=answer;renderQuestion();
+ answers[qid]=answer;
+ renderQuestion();
  document.getElementById("saveStatus").textContent="Speichere Antwort …";
- const task=(async()=>{
-   try{
-     const {error}=await sb.rpc("save_music_answer",{p_session_id:sessionId,p_question_id:qid,p_answer:answer});
-     if(error)throw error;
-     document.getElementById("saveStatus").textContent="✓ Antwort sicher gespeichert.";
-   }catch(e){
-     document.getElementById("saveStatus").textContent="Speichern fehlgeschlagen: "+e.message+" – bitte Verbindung prüfen.";
-     throw e;
-   }
- })();
+ const snapshot=JSON.parse(JSON.stringify(answer));
+ const task=saveQueue.then(async()=>{
+   const {error}=await sb.rpc("save_music_answer",{p_session_id:sessionId,p_question_id:qid,p_answer:snapshot});
+   if(error)throw error;
+ });
+ saveQueue=task.catch(()=>{});
  pendingSaves.push(task);
- try{await task;}catch(e){}finally{pendingSaves=pendingSaves.filter(x=>x!==task);}
+ try{
+   await task;
+   document.getElementById("saveStatus").textContent="✓ Antwort sicher gespeichert.";
+ }catch(e){
+   document.getElementById("saveStatus").textContent="Speichern fehlgeschlagen: "+e.message+" – bitte Verbindung prüfen.";
+ }finally{
+   pendingSaves=pendingSaves.filter(x=>x!==task);
+ }
 }
 function move(n){current=Math.max(0,Math.min(29,current+n));renderQuestion();}
 function startTimer(){if(timerHandle)clearInterval(timerHandle);timerHandle=setInterval(async()=>{const left=Math.max(0,Math.floor((deadline-Date.now())/1000));const m=String(Math.floor(left/60)).padStart(2,"0"),s=String(left%60).padStart(2,"0");document.getElementById("timer").textContent=m+":"+s;if(left<=0){clearInterval(timerHandle);await submitExam(true);}},500);}
@@ -225,12 +254,62 @@ function renderReviewList(){
   });
 }
 async function submitExam(auto=false){
- try{document.getElementById("submitBtn").disabled=true;const {data,error}=await sb.rpc("submit_music_exam",{p_session_id:sessionId});if(error)throw error;if(timerHandle)clearInterval(timerHandle);
- document.getElementById("resultPoints").textContent=data.points+"/30";document.getElementById("resultPercent").textContent=(data.points/30*100).toFixed(1).replace(".",",")+"%";document.getElementById("resultGrade").textContent=data.grade;
- document.getElementById("resultMessage").textContent=auto?"Die Zeit ist abgelaufen. Deine gespeicherten Antworten wurden gewertet.":"Deine Prüfung wurde verbindlich abgegeben.";
- sessionStorage.removeItem("mq_exam_session");show("result");
+ try{
+   document.getElementById("submitBtn").disabled=true;
+   await saveQueue;
+   if(pendingSaves.length) await Promise.allSettled([...pendingSaves]);
+   const {data,error}=await sb.rpc("submit_music_exam",{p_session_id:sessionId});
+   if(error)throw error;
+   if(timerHandle)clearInterval(timerHandle);
+   document.getElementById("resultPoints").textContent=data.points+"/30";
+   document.getElementById("resultPercent").textContent=(data.points/30*100).toFixed(1).replace(".",",")+"%";
+   document.getElementById("resultGrade").textContent=data.grade;
+   document.getElementById("resultMessage").textContent=auto?"Die Zeit ist abgelaufen. Deine gespeicherten Antworten wurden gewertet.":"Deine Prüfung wurde verbindlich abgegeben.";
+   sessionStorage.removeItem("mq_exam_session");
+   show("result");
+   await loadResultReview();
  }catch(e){err("submitError",e.message||"Abgabe fehlgeschlagen.");}
  finally{document.getElementById("submitBtn").disabled=false;}
+}
+async function loadResultReview(){
+ const host=document.getElementById("resultReview");host.innerHTML="<p>Auswertung wird geladen …</p>";
+ try{
+   const {data,error}=await sb.rpc("get_music_exam_review",{p_session_id:sessionId});
+   if(error)throw error;
+   host.innerHTML="";
+   (data||[]).forEach((q,index)=>{
+     const box=document.createElement("article");
+     const answer=q.answer;
+     let isCorrect=false, lines=[];
+     if(q.task_type==="mcq"){
+       const chosen=Number.isInteger(answer)?q.options[answer]:"Nicht beantwortet";
+       const correctIndex=Number(q.correct_answer.mcq);
+       const correct=q.options[correctIndex];
+       isCorrect=Number.isInteger(answer)&&answer===correctIndex;
+       lines.push({ok:isCorrect,label:"Deine Antwort: "+chosen});
+       lines.push({ok:true,label:"Richtige Lösung: "+correct});
+     }else{
+       const pairs=(q.payload&&q.payload.pairs)||[];
+       let all=true;
+       pairs.forEach(([left])=>{
+         const chosen=answer&&answer[left]||"Nicht zugeordnet";
+         const correct=q.correct_answer&&q.correct_answer[left]||"";
+         const ok=chosen===correct; if(!ok)all=false;
+         lines.push({ok,label:left+" → "+chosen+(ok?"":" | Richtig: "+correct)});
+       });
+       isCorrect=all&&pairs.length>0;
+     }
+     box.className="result-question"+(isCorrect?" correct":"");
+     const title=document.createElement("h3");title.textContent=`Frage ${index+1} – ${q.genre} · ${isCorrect?"Richtig":"Falsch"}`;
+     const prompt=document.createElement("p");prompt.textContent=q.prompt;
+     box.append(title,prompt);
+     lines.forEach(line=>{
+       const div=document.createElement("div");div.className="result-line "+(line.ok?"correct":"wrong");div.textContent=(line.ok?"✓ ":"✗ ")+line.label;box.append(div);
+     });
+     if(q.explanation){const exp=document.createElement("small");exp.textContent=q.explanation;box.append(exp);}
+     host.append(box);
+   });
+ }catch(e){host.textContent="Die detaillierte Auswertung konnte nicht geladen werden: "+e.message;}
 }
 async function teacherLogin(){
  try{ready();clearErr("loginError");const email=document.getElementById("teacherEmail").value,password=document.getElementById("teacherPassword").value;const {error}=await sb.auth.signInWithPassword({email,password});if(error)throw error;show("dashboard");await loadResults();}
