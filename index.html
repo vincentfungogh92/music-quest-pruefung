@@ -9,6 +9,15 @@
 .wrap{max-width:1080px;margin:auto;padding:20px}.top{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:22px}.logo{font-size:clamp(1.3rem,4vw,2rem);font-weight:1000;letter-spacing:1px}.logo span{color:var(--orange)}.chip{border:1px solid var(--line);background:#102943;border-radius:999px;padding:9px 14px;color:var(--muted);font-weight:800}
 .hero,.panel{background:linear-gradient(145deg,#142d48,#0c1e33);border:1px solid #2c4e6d;border-radius:22px;padding:clamp(18px,4vw,34px);box-shadow:0 16px 45px #0003}.hero{padding:clamp(25px,6vw,58px);background:linear-gradient(120deg,#153955ee,#091c32f2);position:relative;overflow:hidden}.kicker{font-size:.76rem;letter-spacing:3px;color:var(--cyan);font-weight:900}.hero h1{font-size:clamp(2.5rem,8vw,5rem);line-height:.98;margin:12px 0}.hero h1 span{color:var(--orange)}p{color:#c6d5e5;line-height:1.6}.muted{color:var(--muted)}.btn{border:0;border-radius:13px;padding:12px 18px;background:linear-gradient(135deg,var(--cyan),#74e7f3);color:#062235;font-weight:900;cursor:pointer}.btn.orange{background:linear-gradient(135deg,#ff9f22,#ffd078);color:#241607}.btn.alt{background:#1b3855;color:var(--text);border:1px solid #41617c}.btn:disabled{opacity:.45;cursor:not-allowed}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}.field{display:grid;gap:7px;margin:14px 0}.field label{font-weight:800}.field input{width:100%;padding:13px;border-radius:11px;border:1px solid #456580;background:#081a2e;color:white;font-size:1rem}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:22px 0}.genre{border:1px solid var(--line);border-radius:15px;padding:15px;background:#102943;text-align:center;font-weight:900}.genre b{display:block;font-size:2rem;margin-bottom:5px}.screen{display:none}.screen.active{display:block}.rules{border:1px solid #365875;background:#0d2238;border-radius:14px;padding:16px;margin-top:18px}.rules li{margin:7px 0;color:#d2e2f1}.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.timer{font-size:1.2rem;color:#ffe0a1;font-weight:950;border:1px solid #9a6b2c;border-radius:12px;padding:9px 13px}.progress{height:8px;background:#263e59;border-radius:99px;overflow:hidden;margin:14px 0 20px}.progress>div{height:100%;background:linear-gradient(90deg,var(--cyan),var(--orange));width:0}.qimage{height:clamp(160px,30vw,270px);border:1px solid #38617d;border-radius:16px;overflow:hidden;background:linear-gradient(135deg,#193b59,#0a1a2c);margin:14px 0}.qimage img{width:100%;height:100%;object-fit:cover}.qimage .fallback{height:100%;display:grid;place-items:center;font-size:4rem}.qtitle{font-size:clamp(1.25rem,3vw,1.8rem);line-height:1.3;margin:15px 0}.answers{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}.answer{border:1px solid #3a5d7b;border-radius:13px;color:var(--text);padding:14px;background:#193854;text-align:left;font-weight:800;cursor:pointer}.answer.selected{border:2px solid var(--cyan);background:#15506a}.answer:disabled{opacity:.8}.status{min-height:26px;color:var(--muted);font-size:.9rem;margin-top:10px}.matchrow{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:center;margin:9px 0}.matchrow span{background:#173550;padding:11px;border-radius:10px;font-weight:800}.matchrow select{background:#081a2e;color:white;border:1px solid #456580;border-radius:10px;padding:11px;min-width:0}.tablewrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:580px}th,td{text-align:left;padding:11px;border-bottom:1px solid #31506c}th{color:#9feefa}td{color:#eaf3fa}.statgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:18px 0}.stat{background:#0d263e;border:1px solid #31536f;border-radius:14px;padding:14px}.stat strong{display:block;font-size:1.7rem;color:var(--cyan)}.note{font-size:5rem;color:var(--orange);font-weight:1000}.success{border:1px solid #2e9672;background:#103d34;border-radius:15px;padding:16px}.error{border:1px solid #98536c;background:#462638;border-radius:12px;padding:12px;color:#ffdce5}.hidden{display:none!important}.small{font-size:.85rem}
 @media(max-width:620px){.wrap{padding:12px}.top{align-items:flex-start;flex-direction:column}.matchrow{grid-template-columns:1fr}.answers{grid-template-columns:1fr}}
+
+.review-list{display:grid;gap:10px;margin:16px 0 22px}
+.review-item{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.035)}
+.review-item.unanswered{border-color:var(--orange);background:rgba(255,181,77,.07)}
+.review-item strong{display:block;margin-bottom:4px}
+.review-answer{font-size:.92rem;color:var(--muted);overflow-wrap:anywhere}
+.review-item button{white-space:nowrap}
+.review-status{font-weight:700;font-size:.82rem}
+@media(max-width:620px){.review-item{grid-template-columns:1fr}.review-item button{width:100%}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
@@ -52,7 +61,7 @@
 </section>
 
 <section id="confirm" class="screen">
- <div class="panel"><div class="kicker">LETZTER SCHRITT</div><h2>Prüfung verbindlich abgeben?</h2><p>Nach der Abgabe werden deine Antworten endgültig gesperrt. Du kannst sie nicht mehr ändern.</p><p id="confirmHint" class="muted"></p><div class="statgrid"><div class="stat"><strong id="answeredCount">0/30</strong>Beantwortet</div><div class="stat"><strong id="remainingCount">30</strong>Offen</div></div><div class="actions"><button class="btn orange" id="submitBtn" onclick="submitExam()">Ja, verbindlich abgeben</button><button class="btn alt" onclick="show('exam')">Zurück zur Prüfung</button></div><div id="submitError" class="error hidden"></div></div>
+ <div class="panel"><div class="kicker">LETZTER SCHRITT</div><h2>Prüfung verbindlich abgeben?</h2><p>Nach der Abgabe werden deine Antworten endgültig gesperrt. Du kannst sie nicht mehr ändern.</p><p id="confirmHint" class="muted"></p><h3>Deine Antworten im Überblick</h3><p class="muted">Kontrolliere alle 30 Aufgaben. Über „Bearbeiten“ kannst du zu einer Frage zurückspringen.</p><div id="reviewList" class="review-list"></div><div class="statgrid"><div class="stat"><strong id="answeredCount">0/30</strong>Beantwortet</div><div class="stat"><strong id="remainingCount">30</strong>Offen</div></div><div class="actions"><button class="btn orange" id="submitBtn" onclick="submitExam()">Ja, verbindlich abgeben</button><button class="btn alt" onclick="show('exam')">Zurück zur Prüfung</button></div><div id="submitError" class="error hidden"></div></div>
 </section>
 
 <section id="result" class="screen">
@@ -76,7 +85,7 @@
 <script>
 const CONFIG_OK = window.MQ_SUPABASE_URL && window.MQ_SUPABASE_ANON_KEY &&
  !window.MQ_SUPABASE_URL.includes("PASTE_") && !window.MQ_SUPABASE_ANON_KEY.includes("PASTE_");
-let sb=null, sessionId=null, questions=[], answers={}, current=0, deadline=null, timerHandle=null, results=[];
+let sb=null, sessionId=null, questions=[], answers={}, current=0, deadline=null, timerHandle=null, results=[], pendingSaves=[];
 const imageFiles={
  "country-bluegrass":"assets/country-bluegrass.jpg",
  "country-banjo-fiddle":"assets/country-banjo-fiddle.jpg",
@@ -94,7 +103,7 @@ async function startExam(){
  try{ready();clearErr("startError");const name=document.getElementById("studentName").value.trim(),klass=document.getElementById("className").value.trim();if(!name||!klass)throw new Error("Bitte Namen und Klasse vollständig eingeben.");
  document.getElementById("startBtn").disabled=true;
  const {data,error}=await sb.rpc("start_music_exam",{p_student_name:name,p_class_name:klass});if(error)throw error;
- sessionId=data.session_id;deadline=new Date(data.deadline);questions=data.questions;prepareQuestions();answers={};current=0;
+ sessionId=data.session_id;deadline=new Date(data.deadline);questions=data.questions;prepareQuestions();answers={};pendingSaves=[];current=0;
  sessionStorage.setItem("mq_exam_session",sessionId);sessionStorage.setItem("mq_exam_name",name);sessionStorage.setItem("mq_exam_class",klass);
  show("exam");renderQuestion();startTimer();
  }catch(e){err("startError",e.message||"Prüfung konnte nicht gestartet werden.");}
@@ -149,20 +158,71 @@ function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":
 async function saveAnswer(qid,answer,control){
  answers[qid]=answer;renderQuestion();
  document.getElementById("saveStatus").textContent="Speichere Antwort …";
- try{const {error}=await sb.rpc("save_music_answer",{p_session_id:sessionId,p_question_id:qid,p_answer:answer});if(error)throw error;document.getElementById("saveStatus").textContent="✓ Antwort sicher gespeichert.";}
- catch(e){document.getElementById("saveStatus").textContent="Speichern fehlgeschlagen: "+e.message+" – bitte Verbindung prüfen.";}
+ const task=(async()=>{
+   try{
+     const {error}=await sb.rpc("save_music_answer",{p_session_id:sessionId,p_question_id:qid,p_answer:answer});
+     if(error)throw error;
+     document.getElementById("saveStatus").textContent="✓ Antwort sicher gespeichert.";
+   }catch(e){
+     document.getElementById("saveStatus").textContent="Speichern fehlgeschlagen: "+e.message+" – bitte Verbindung prüfen.";
+     throw e;
+   }
+ })();
+ pendingSaves.push(task);
+ try{await task;}catch(e){}finally{pendingSaves=pendingSaves.filter(x=>x!==task);}
 }
 function move(n){current=Math.max(0,Math.min(29,current+n));renderQuestion();}
 function startTimer(){if(timerHandle)clearInterval(timerHandle);timerHandle=setInterval(async()=>{const left=Math.max(0,Math.floor((deadline-Date.now())/1000));const m=String(Math.floor(left/60)).padStart(2,"0"),s=String(left%60).padStart(2,"0");document.getElementById("timer").textContent=m+":"+s;if(left<=0){clearInterval(timerHandle);await submitExam(true);}},500);}
-function confirmSubmit(){
- const count=questions.filter(isQuestionAnswered).length;
- const remaining=30-count;
- document.getElementById("answeredCount").textContent=count+"/30";
- document.getElementById("remainingCount").textContent=remaining;
- document.getElementById("confirmHint").textContent=remaining>0
-   ? `Achtung: Du hast noch ${remaining} ${remaining===1?"Aufgabe":"Aufgaben"} nicht vollständig beantwortet. Mit „Zurück zur Prüfung“ kannst du sie noch bearbeiten.`
-   : "Alle 30 Aufgaben sind beantwortet. Du kannst jetzt verbindlich abgeben.";
- show("confirm");
+async function confirmSubmit(){
+  const hint=document.getElementById("confirmHint");
+  hint.textContent="Einen Moment – deine letzte Antwort wird noch gespeichert …";
+  show("confirm");
+  if(pendingSaves.length) await Promise.allSettled([...pendingSaves]);
+  const count=questions.filter(isQuestionAnswered).length;
+  const remaining=questions.length-count;
+  document.getElementById("answeredCount").textContent=count+"/"+questions.length;
+  document.getElementById("remainingCount").textContent=remaining;
+  hint.textContent=remaining>0
+    ? `Achtung: Du hast noch ${remaining} ${remaining===1?"Aufgabe":"Aufgaben"} nicht vollständig beantwortet. Kontrolliere die markierten Aufgaben und bearbeite sie bei Bedarf.`
+    : "Alle Aufgaben sind beantwortet. Kontrolliere deine Auswahl noch einmal, bevor du verbindlich abgibst.";
+  renderReviewList();
+}
+function answerSummary(q){
+  const a=answers[q.id];
+  if(a===undefined||a===null) return "Noch nicht beantwortet";
+  if(q.task_type==="mcq"){
+    if(!Number.isInteger(a)||!q.options[a]) return "Noch nicht beantwortet";
+    return q.options[a];
+  }
+  const pairs=(q.payload||{}).pairs||[];
+  const entries=pairs.map(([left])=>`${left}: ${(a&&a[left])?a[left]:"—"}`);
+  return entries.length?entries.join(" · "):"Keine Zuordnungen vorhanden";
+}
+function renderReviewList(){
+  const list=document.getElementById("reviewList");list.innerHTML="";
+  questions.forEach((q,index)=>{
+    const answered=isQuestionAnswered(q);
+    const item=document.createElement("div");
+    item.className="review-item"+(answered?"":" unanswered");
+    const info=document.createElement("div");
+    const title=document.createElement("strong");
+    title.textContent=`Frage ${index+1} – ${q.genre}`;
+    const prompt=document.createElement("div");
+    prompt.className="review-answer";
+    prompt.textContent=q.prompt;
+    const answer=document.createElement("div");
+    answer.className="review-answer";
+    answer.textContent="Deine Antwort: "+answerSummary(q);
+    const status=document.createElement("div");
+    status.className="review-status";
+    status.textContent=answered?"✓ Beantwortet":"! Noch offen";
+    info.append(title,prompt,answer,status);
+    const edit=document.createElement("button");
+    edit.className="btn alt";
+    edit.textContent="Bearbeiten";
+    edit.onclick=()=>{current=index;show("exam");renderQuestion();};
+    item.append(info,edit);list.appendChild(item);
+  });
 }
 async function submitExam(auto=false){
  try{document.getElementById("submitBtn").disabled=true;const {data,error}=await sb.rpc("submit_music_exam",{p_session_id:sessionId});if(error)throw error;if(timerHandle)clearInterval(timerHandle);
