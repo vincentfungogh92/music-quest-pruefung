@@ -52,7 +52,7 @@
 </section>
 
 <section id="confirm" class="screen">
- <div class="panel"><div class="kicker">LETZTER SCHRITT</div><h2>Prüfung verbindlich abgeben?</h2><p>Nach der Abgabe werden deine Antworten endgültig gesperrt. Du kannst sie nicht mehr ändern.</p><div class="statgrid"><div class="stat"><strong id="answeredCount">0/30</strong>Beantwortet</div><div class="stat"><strong id="remainingCount">30</strong>Offen</div></div><div class="actions"><button class="btn orange" id="submitBtn" onclick="submitExam()">Ja, verbindlich abgeben</button><button class="btn alt" onclick="show('exam')">Zurück zur Prüfung</button></div><div id="submitError" class="error hidden"></div></div>
+ <div class="panel"><div class="kicker">LETZTER SCHRITT</div><h2>Prüfung verbindlich abgeben?</h2><p>Nach der Abgabe werden deine Antworten endgültig gesperrt. Du kannst sie nicht mehr ändern.</p><p id="confirmHint" class="muted"></p><div class="statgrid"><div class="stat"><strong id="answeredCount">0/30</strong>Beantwortet</div><div class="stat"><strong id="remainingCount">30</strong>Offen</div></div><div class="actions"><button class="btn orange" id="submitBtn" onclick="submitExam()">Ja, verbindlich abgeben</button><button class="btn alt" onclick="show('exam')">Zurück zur Prüfung</button></div><div id="submitError" class="error hidden"></div></div>
 </section>
 
 <section id="result" class="screen">
@@ -94,7 +94,7 @@ async function startExam(){
  try{ready();clearErr("startError");const name=document.getElementById("studentName").value.trim(),klass=document.getElementById("className").value.trim();if(!name||!klass)throw new Error("Bitte Namen und Klasse vollständig eingeben.");
  document.getElementById("startBtn").disabled=true;
  const {data,error}=await sb.rpc("start_music_exam",{p_student_name:name,p_class_name:klass});if(error)throw error;
- sessionId=data.session_id;deadline=new Date(data.deadline);questions=data.questions;answers={};current=0;
+ sessionId=data.session_id;deadline=new Date(data.deadline);questions=data.questions;prepareQuestions();answers={};current=0;
  sessionStorage.setItem("mq_exam_session",sessionId);sessionStorage.setItem("mq_exam_name",name);sessionStorage.setItem("mq_exam_class",klass);
  show("exam");renderQuestion();startTimer();
  }catch(e){err("startError",e.message||"Prüfung konnte nicht gestartet werden.");}
@@ -112,10 +112,20 @@ function renderQuestion(){
  const area=document.getElementById("answerArea");area.innerHTML="";
  if(q.task_type==="mcq"){
    const grid=document.createElement("div");grid.className="answers";
-   q.options.forEach((opt,i)=>{const b=document.createElement("button");b.className="answer"+(answers[q.id]===i?" selected":"");b.textContent=String.fromCharCode(65+i)+". "+opt;b.onclick=()=>saveAnswer(q.id,i,b);grid.appendChild(b);});
+   // Die Antwortreihenfolge wird zufällig angezeigt. Für die Bewertung bleibt
+   // der ursprüngliche Index erhalten, den der Server erwartet.
+   const order=q.optionOrder||q.options.map((_,i)=>i);
+   order.forEach((originalIndex,displayIndex)=>{
+     const opt=q.options[originalIndex];
+     const b=document.createElement("button");
+     b.className="answer"+(answers[q.id]===originalIndex?" selected":"");
+     b.textContent=String.fromCharCode(65+displayIndex)+". "+opt;
+     b.onclick=()=>saveAnswer(q.id,originalIndex,b);
+     grid.appendChild(b);
+   });
    area.appendChild(grid);
  }else{
-   const payload=q.payload||{};const pairs=payload.pairs||[];const choices=[...new Set(pairs.map(x=>x[1]))];
+   const payload=q.payload||{};const pairs=payload.pairs||[];const choices=q.matchChoices||[...new Set(pairs.map(x=>x[1]))];
    pairs.forEach(([left],i)=>{const row=document.createElement("div");row.className="matchrow";const label=document.createElement("span");label.textContent=left;const sel=document.createElement("select");sel.innerHTML='<option value="">Bitte auswählen …</option>'+choices.map(c=>`<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join("");const saved=answers[q.id]||{};sel.value=saved[left]||"";sel.onchange=()=>{const v={...(answers[q.id]||{}),[left]:sel.value};saveAnswer(q.id,v,sel);};row.append(label,sel);area.appendChild(row);});
  }
  document.getElementById("prevBtn").disabled=current===0;
@@ -123,6 +133,18 @@ function renderQuestion(){
  document.getElementById("finishBtn").style.display=current===29?"inline-block":"none";
  document.getElementById("saveStatus").textContent=answers[q.id]!==undefined?"Antwort gespeichert.":"Wähle eine Antwort. Sie wird automatisch gespeichert.";
 }
+function shuffleArray(items){const a=[...items];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function prepareQuestions(){
+ questions.forEach(q=>{
+   if(q.task_type==="mcq"){
+     q.optionOrder=shuffleArray(q.options.map((_,i)=>i));
+   }else if(q.task_type==="match"){
+     const pairs=(q.payload||{}).pairs||[];
+     q.matchChoices=shuffleArray([...new Set(pairs.map(x=>x[1]))]);
+   }
+ });
+}
+function isQuestionAnswered(q){const a=answers[q.id];if(a===undefined||a===null)return false;if(q.task_type==="mcq")return Number.isInteger(a);const pairs=(q.payload||{}).pairs||[];return pairs.length>0&&pairs.every(([left])=>typeof a[left]==="string"&&a[left].length>0);}
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 async function saveAnswer(qid,answer,control){
  answers[qid]=answer;renderQuestion();
@@ -132,7 +154,16 @@ async function saveAnswer(qid,answer,control){
 }
 function move(n){current=Math.max(0,Math.min(29,current+n));renderQuestion();}
 function startTimer(){if(timerHandle)clearInterval(timerHandle);timerHandle=setInterval(async()=>{const left=Math.max(0,Math.floor((deadline-Date.now())/1000));const m=String(Math.floor(left/60)).padStart(2,"0"),s=String(left%60).padStart(2,"0");document.getElementById("timer").textContent=m+":"+s;if(left<=0){clearInterval(timerHandle);await submitExam(true);}},500);}
-function confirmSubmit(){const count=Object.keys(answers).length;document.getElementById("answeredCount").textContent=count+"/30";document.getElementById("remainingCount").textContent=30-count;show("confirm");}
+function confirmSubmit(){
+ const count=questions.filter(isQuestionAnswered).length;
+ const remaining=30-count;
+ document.getElementById("answeredCount").textContent=count+"/30";
+ document.getElementById("remainingCount").textContent=remaining;
+ document.getElementById("confirmHint").textContent=remaining>0
+   ? `Achtung: Du hast noch ${remaining} ${remaining===1?"Aufgabe":"Aufgaben"} nicht vollständig beantwortet. Mit „Zurück zur Prüfung“ kannst du sie noch bearbeiten.`
+   : "Alle 30 Aufgaben sind beantwortet. Du kannst jetzt verbindlich abgeben.";
+ show("confirm");
+}
 async function submitExam(auto=false){
  try{document.getElementById("submitBtn").disabled=true;const {data,error}=await sb.rpc("submit_music_exam",{p_session_id:sessionId});if(error)throw error;if(timerHandle)clearInterval(timerHandle);
  document.getElementById("resultPoints").textContent=data.points+"/30";document.getElementById("resultPercent").textContent=(data.points/30*100).toFixed(1).replace(".",",")+"%";document.getElementById("resultGrade").textContent=data.grade;
@@ -166,7 +197,7 @@ async function resumeExamIfOpen(){
   const {data,error}=await sb.rpc("get_music_exam",{p_session_id:saved});
   if(error)throw error;
   if(data.submitted_at){sessionStorage.removeItem("mq_exam_session");return;}
-  sessionId=data.session_id;deadline=new Date(data.deadline);questions=data.questions||[];answers=data.answers||{};
+  sessionId=data.session_id;deadline=new Date(data.deadline);questions=data.questions||[];prepareQuestions();answers=data.answers||{};
   if(questions.length===30){current=0;show("exam");renderQuestion();startTimer();}
  }catch(e){console.warn("Prüfung konnte nicht wiederhergestellt werden:",e.message);}
 }
